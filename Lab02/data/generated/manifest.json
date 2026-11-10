@@ -1,0 +1,13 @@
+{
+  "variant": 29,
+  "seed": 59,
+  "base_seed": 30,
+  "sets": [
+    "ops"
+  ],
+  "files": [
+    "ops_append_sizes.txt",
+    "ops_deque.txt",
+    "ops_stack.txt"
+  ]
+}
