@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""ЛР 3. Простые сортировки и QuickSort с рандомизацией — стартовая заготовка.
+
+Заготовка — это каркас, а не решение: заполните все TODO самостоятельно
+в соответствии с КИМ-03 и правилами использования генеративного ИИ
+(docs/ai-verification.md).
+
+Запуск: python lab03-simple-sorts-quicksort-starter.py --variant N
+"""
 from __future__ import annotations
 
 import argparse
@@ -9,8 +19,19 @@ import time
 import traceback
 from pathlib import Path
 
+# ---------------------------------------------------------------------------
+# 1. Простые сортировки со счётчиками (сортируют КОПИЮ входа, вход не меняют)
+#    Каждая функция возвращает кортеж: (отсортированный список,
+#    число сравнений ключей, число обменов/перемещений элементов).
+# ---------------------------------------------------------------------------
+
 
 def bubble_sort(a: list) -> tuple[list, int, int]:
+    """Сортировка пузырьком. Ожидаемая сложность: TODO (обосновать в отчёте).
+
+    Подсказка: досрочный выход, если за проход не было ни одного обмена, —
+    именно он даёт лучший случай на упорядоченном входе.
+    """
     a = list(a)
     n = len(a)
     comparisons = 0
@@ -29,6 +50,7 @@ def bubble_sort(a: list) -> tuple[list, int, int]:
 
 
 def insertion_sort(a: list) -> tuple[list, int, int]:
+    """Сортировка вставками. Ожидаемая сложность: TODO (лучший/худший случаи)."""
     a = list(a)
     comparisons = 0
     shifts = 0
@@ -48,6 +70,7 @@ def insertion_sort(a: list) -> tuple[list, int, int]:
 
 
 def selection_sort(a: list) -> tuple[list, int, int]:
+    """Сортировка выбором. Ожидаемая сложность: TODO (почему не зависит от входа?)."""
     a = list(a)
     n = len(a)
     comparisons = 0
@@ -64,7 +87,18 @@ def selection_sort(a: list) -> tuple[list, int, int]:
     return a, comparisons, swaps
 
 
+# ---------------------------------------------------------------------------
+# 2. QuickSort с рандомизированным опорным элементом
+# ---------------------------------------------------------------------------
+
+
 def quick_sort(a: list, rng: random.Random | None = None) -> list:
+    """QuickSort с выбором опорного через rng.randrange. Возвращает новый список.
+
+    Ожидаемая сложность: в среднем TODO, в худшем случае TODO (обосновать
+    в отчёте, объяснить роль рандомизации). rng передаётся снаружи, чтобы
+    запуск был воспроизводим по seed варианта.
+    """
     if rng is None:
         rng = random.Random()
     a = list(a)
@@ -92,6 +126,11 @@ def quick_sort(a: list, rng: random.Random | None = None) -> list:
             stack.append((gt, hi))
             stack.append((lo, lt))
     return a
+
+
+# ---------------------------------------------------------------------------
+# 3. Демонстрация стабильности на парах (ключ, метка)
+# ---------------------------------------------------------------------------
 
 
 class Keyed:
@@ -139,6 +178,13 @@ def is_stable(fn) -> tuple[bool, dict]:
 
 
 def stability_demo() -> None:
+    """Показать, какие из четырёх сортировок стабильны.
+
+    План: взять массив пар (ключ, метка) с повторяющимися ключами, например
+    [(2, "a"), (1, "b"), (2, "c"), (1, "d")], отсортировать каждой сортировкой
+    по ключу (сравнение только по p[0]!) и напечатать порядок меток при равных
+    ключах. Вывод о стабильности каждой сортировки включить в отчёт.
+    """
     print("\nstability_demo:")
     print(f"  вход: {STABILITY_PAIRS}")
     print(f"  исходный порядок меток при равных ключах: "
@@ -149,8 +195,14 @@ def stability_demo() -> None:
         print(f"  {name:<15} {got}  -> {verdict}")
 
 
+# ---------------------------------------------------------------------------
+# 4. Классы входов (данные по варианту, детерминированно по seed)
+# ---------------------------------------------------------------------------
+
+
 def make_inputs(n: int, seed: int) -> dict[str, list[int]]:
-    rng = random.Random(seed + n)
+    """Три класса входов размера n: упорядоченный, случайный, обратный."""
+    rng = random.Random(seed + n)  # свой поток для каждого размера
     data = [rng.randint(-1_000_000, 1_000_000) for _ in range(n)]
     return {
         "упорядоченный": sorted(data),
@@ -158,6 +210,10 @@ def make_inputs(n: int, seed: int) -> dict[str, list[int]]:
         "обратный": sorted(data, reverse=True),
     }
 
+
+# ---------------------------------------------------------------------------
+# 5. Верификация (шаги 1–3 методики docs/ai-verification.md)
+# ---------------------------------------------------------------------------
 
 ALGORITHMS = {
     "bubble_sort": lambda a: bubble_sort(a)[0],
@@ -168,25 +224,28 @@ ALGORITHMS = {
 
 
 def is_sorted(a: list) -> bool:
+    """Инвариант 1: неубывающий порядок элементов."""
     return all(a[i] <= a[i + 1] for i in range(len(a) - 1))
 
 
 class SelfCheckError(Exception):
-    pass
+    """Нарушен контракт или инвариант реализации."""
 
 
 def expect(condition: bool, message: str) -> None:
+    """Явная проверка вместо assert: assert-ы исчезают при запуске python -O."""
     if not condition:
         raise SelfCheckError(message)
 
 
 def check_algorithm(fn) -> None:
+    """Граничные случаи, инварианты сортировки и сверка с эталоном sorted()."""
     boundary = [
-        [],
-        [7],
-        [5, 5, 5, 5],
-        [1, 2, 3, 4, 5],
-        [5, 4, 3, 2, 1],
+        [],                    # пустой массив
+        [7],                   # один элемент
+        [5, 5, 5, 5],          # все элементы равны
+        [1, 2, 3, 4, 5],       # уже отсортирован
+        [5, 4, 3, 2, 1],       # обратный порядок
     ]
     for a in boundary:
         res = fn(list(a))
@@ -194,6 +253,7 @@ def check_algorithm(fn) -> None:
         expect(is_sorted(res), f"нарушен порядок на {a}: получено {res}")
         expect(sorted(res) == sorted(a), f"не перестановка входа {a}: получено {res}")
 
+    # Сверка с эталоном из стандартной библиотеки на сотнях случайных входов.
     rng = random.Random(0)
     for _ in range(300):
         a = [rng.randint(-100, 100) for _ in range(rng.randint(0, 80))]
@@ -209,6 +269,7 @@ def check_input_untouched() -> None:
 
 
 def check_counters() -> None:
+    """Счётчики: у сортировки выбором ровно n*(n-1)/2 сравнений на любом входе."""
     _, comparisons, _ = selection_sort([3, 1, 2, 5, 4])
     expect(comparisons == 10,
            f"selection_sort: неверный счётчик сравнений — {comparisons}, ожидалось 10")
@@ -260,6 +321,8 @@ def check_quick_deterministic() -> None:
 
 
 def self_check() -> None:
+    """Все проверки по разделам; при любой ошибке замеры не выполняются."""
+    # fn=fn фиксирует функцию текущего шага цикла (иначе все лямбды увидят последнюю)
     checks = [(name, lambda fn=fn: check_algorithm(fn)) for name, fn in ALGORITHMS.items()]
     checks.append(("вход не меняется", check_input_untouched))
     checks.append(("счётчики", check_counters))
@@ -272,34 +335,41 @@ def self_check() -> None:
             check()
         except NotImplementedError as err:
             where = traceback.extract_tb(err.__traceback__)[-1].name
-            print(f"  {name}: не реализовано — {where}")
+            print(f"  {name}: не реализовано — {where} (TODO)")
             failed += 1
         except SelfCheckError as err:
             print(f"  {name}: ОШИБКА — {err}")
             failed += 1
-        except Exception:
+        except Exception:  # noqa: BLE001 — падение реализации тоже результат проверки
             print(f"  {name}: ИСКЛЮЧЕНИЕ")
             traceback.print_exc(file=sys.stdout)
             failed += 1
         else:
             print(f"  {name}: OK")
+    # TODO: добавить собственные проверки (стабильность, счётчики пузырька и вставок)
+    #       и описать их в отчёте.
     if failed:
         raise SystemExit(f"self_check: не пройдено разделов — {failed}; "
                          f"замеры выполняются только после всех проверок.")
     print("self_check: OK")
 
 
-SIZES_QUADRATIC = [500, 1_000, 2_000, 4_000, 8_000]
-SIZES_QUICK = [1_000, 3_000, 10_000, 30_000, 100_000]
+# ---------------------------------------------------------------------------
+# 6. Бенчмарк (методика — docs/reproducibility.md)
+# ---------------------------------------------------------------------------
+
+SIZES_QUADRATIC = [500, 1_000, 2_000, 4_000, 8_000]     # для простых сортировок
+SIZES_QUICK = [1_000, 3_000, 10_000, 30_000, 100_000]   # для QuickSort
 REPEATS = 5
 COUNTED = {"bubble_sort": bubble_sort, "insertion_sort": insertion_sort, "selection_sort": selection_sort}
 
 
 def bench(fn, data: list) -> float:
-    fn(list(data))
+    """Медиана времени выполнения fn(копия data) по REPEATS запускам, с прогревом."""
+    fn(list(data))  # прогрев — не учитывается
     times = []
     for _ in range(REPEATS):
-        arg = list(data)
+        arg = list(data)  # свежая копия: сортировка не должна получать свой результат
         t0 = time.perf_counter()
         fn(arg)
         times.append(time.perf_counter() - t0)
@@ -366,6 +436,7 @@ def plot_results(results: dict, out_dir: Path) -> list[Path]:
 
 
 def run_benchmarks(seed: int) -> None:
+    """Замеры всех алгоритмов на трёх классах входов; результат — таблица в stdout."""
     plans = [
         ("bubble_sort", ALGORITHMS["bubble_sort"], SIZES_QUADRATIC),
         ("insertion_sort", ALGORITHMS["insertion_sort"], SIZES_QUADRATIC),
@@ -387,6 +458,10 @@ def run_benchmarks(seed: int) -> None:
                 if name in COUNTED:
                     _, c, s = COUNTED[name](data)
                     counters.append((name, n, cls, c, s))
+    # TODO: построить log-log графики (matplotlib) по классам входов;
+    # TODO: сопоставить наклоны с O(n^2) и O(n log n), объяснить расхождения
+    #       (в т. ч. лучший случай вставок и поведение пузырька на упорядоченном входе);
+    # TODO: включить в отчёт таблицы счётчиков сравнений/обменов.
 
     print("\nНаклоны log-log (k в t ~ n^k):")
     print(f"  {'алгоритм':<15} {'упорядоченный':>14} {'случайный':>10} {'обратный':>9}")
@@ -410,7 +485,7 @@ def run_benchmarks(seed: int) -> None:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="ЛР 3. Простые сортировки и QuickSort с рандомизацией")
+    ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--variant", type=int, required=True, help="номер варианта")
     args = ap.parse_args()
     seed = 30 + args.variant
