@@ -1,0 +1,46 @@
+Данные варианта 29 (seed=59) из D:\DMMNuni\Lab02\data\generated
+self_check:
+  рекурсия: OK
+  DynamicArray: OK
+  Stack: OK
+  Deque: OK
+  операции варианта: OK
+self_check: OK
+
+Число вызовов: наивная рекурсия против мемоизации
+  n= 5  F(n)=     5  fib_naive:      15 вызовов  fib_memo:  9 вызовов
+  n=10  F(n)=    55  fib_naive:     177 вызовов  fib_memo: 19 вызовов
+  n=15  F(n)=   610  fib_naive:    1973 вызовов  fib_memo: 29 вызовов
+  n=20  F(n)=  6765  fib_naive:   21891 вызовов  fib_memo: 39 вызовов
+  n=25  F(n)= 75025  fib_naive:  242785 вызовов  fib_memo: 49 вызовов
+  n=30  F(n)=832040  fib_naive: 2692537 вызовов  fib_memo: 59 вызовов
+
+Серии append на размерах варианта:
+  n=   1378  t/n: DynamicArray 2.04e-07 c, list 4.22e-08 c  копирований    2044  (n + копирования)/n = 2.483
+  n=   2059  t/n: DynamicArray 2.28e-07 c, list 4.22e-08 c  копирований    4092  (n + копирования)/n = 2.987
+  n=   3765  t/n: DynamicArray 1.05e-07 c, list 2.37e-08 c  копирований    4092  (n + копирования)/n = 2.087
+  n=   4096  t/n: DynamicArray 1.06e-07 c, list 2.36e-08 c  копирований    4092  (n + копирования)/n = 1.999
+  n=   4097  t/n: DynamicArray 1.31e-07 c, list 2.34e-08 c  копирований    8188  (n + копирования)/n = 2.999
+  n=  10125  t/n: DynamicArray 1.26e-07 c, list 2.41e-08 c  копирований   16380  (n + копирования)/n = 2.618
+  n=  22491  t/n: DynamicArray 1.16e-07 c, list 2.42e-08 c  копирований   32764  (n + копирования)/n = 2.457
+  n=  30428  t/n: DynamicArray 1.09e-07 c, list 2.37e-08 c  копирований   32764  (n + копирования)/n = 2.077
+  n=  63071  t/n: DynamicArray 1.11e-07 c, list 2.73e-08 c  копирований   65532  (n + копирования)/n = 2.039
+  n= 132277  t/n: DynamicArray 1.45e-07 c, list 3.18e-08 c  копирований  262140  (n + копирования)/n = 2.982
+
+Вставка в начало: время одной операции при размере n = 1000, 3000, 10000, 30000, 100000
+  list.insert(0, x) + pop()    2.45e-07  6.55e-07  2.01e-06  5.63e-06  1.95e-05   наклон 0.95
+  deque.appendleft + pop       3.67e-08  3.68e-08  3.71e-08  3.76e-08  3.73e-08   наклон 0.00
+  Deque.push_front + pop_back  2.75e-07  2.60e-07  2.55e-07  2.60e-07  2.84e-07   наклон 0.01
+
+Удаление из начала: время одной операции при размере n = 1000, 3000, 10000, 30000, 100000
+  list.append + pop(0)         9.60e-08  1.99e-07  1.20e-06  3.58e-06  1.20e-05   наклон 1.09
+  deque.append + popleft       3.21e-08  3.13e-08  3.24e-08  3.31e-08  3.34e-08   наклон 0.01
+  Deque.push_back + pop_front  2.61e-07  2.53e-07  2.52e-07  4.18e-07  2.56e-07   наклон 0.04
+
+Операции варианта целиком: время на операцию
+  ops_stack.txt: Stack 1.70e-07 c, list 4.97e-08 c — в 3.4 раза медленнее
+  ops_deque.txt: Deque 1.92e-07 c, collections.deque 5.36e-08 c — в 3.6 раза медленнее
+
+Графики сохранены:
+  D:\DMMNuni\Lab02\lab02_append.png
+  D:\DMMNuni\Lab02\lab02_front.png
